@@ -36,7 +36,7 @@ import java.util.TreeSet;
  */
 public class Configuration {
 	/** The version string. */
-	public static final String VERSION = "0.95.205";
+	public static final String VERSION = "0.95.211";
 	/** Annotation for indicating load/save a field. */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface LoadSave { }
@@ -199,6 +199,13 @@ public class Configuration {
 	@LoadSave
 	@LoadSaveGame
 	public boolean slowOnEnemyAttack = true;
+	/**
+	 * Automatically pop up objectives list on new objective or on completion
+	 * of a current one.
+	 */
+	@LoadSave
+	@LoadSaveGame
+	public boolean autoDisplayObjectives = true;
 	/** Display subtitles. */
 	@LoadSave
 	@LoadSaveGame
@@ -344,7 +351,7 @@ public class Configuration {
 	@LoadSave
 	public int textCacheSize = 0;
 	/** Show the frame statistics .*/
-	public boolean showFPS = true;
+	public boolean showFPS;
 	/** List of supported language codes. */
 	public final List<String> languageSupport = Arrays.asList(
 			"en", "english", 
@@ -476,7 +483,7 @@ public class Configuration {
 	}
 	/**
 	 * Creates a new resource locator object based on the current configuration.
-	 * Scans the containsers.
+	 * Scans the containers.
 	 * @return the resource locator ready to be used
 	 */
 	public ResourceLocator newResourceLocator() {

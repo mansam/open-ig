@@ -373,6 +373,9 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 	boolean noAI;
 	/** Cancel the retreat. */
 	boolean cancelRetreat;
+
+	private boolean preparingGroundBattle;
+
 	@Override
 	public void onFinish() {
 		onEndGame();
@@ -593,8 +596,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 			}
 		});
 		if (surface() != null) {
-			render.offsetX = -(int)((surface().boundingRectangle.width * render.scale - width) / 2);
-			render.offsetY = -(int)((surface().boundingRectangle.height * render.scale - height) / 2);
+			centerScreen();
 		}
 		focused = render;
 		
@@ -719,7 +721,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 			
 			return;
 		} else
-		if (knowledge(planet(), PlanetKnowledge.BUILDING) < 0 && (battle == null || startBattle.visible())) {
+		if (knowledge(planet(), PlanetKnowledge.BUILDING) < 0 && (battle == null || preparingGroundBattle)) {
 			Tile tile =  se.building.scaffolding.normal.get(0);
 			cell.yCompensation = 27 - tile.imageHeight;
 			tile.alpha = alpha;
@@ -865,7 +867,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 			return null;
 		}
 		/**
-		 * Retrive the gun at the given location.
+		 * Retrieve the gun at the given location.
 		 * @param mx the mouse X
 		 * @param my the mouse Y
 		 * @return the gun or null if empty
@@ -1249,7 +1251,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 				drawBattleHelpers(g2, x0, y0);
 				if (config.showBuildingName 
 						&& (knowledge(planet(), PlanetKnowledge.BUILDING) >= 0 
-						|| (battle != null && !startBattle.visible() && !battle.isGroundwarComplete()))) {
+						|| (battle != null && !preparingGroundBattle && !battle.isGroundwarComplete()))) {
 					drawBuildingHelpers(g2, surface);
 				}
 				// paint red on overlapping images of buildings, land-features and vehicles
@@ -1324,7 +1326,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 				g2.fillRect(retreat.x - this.x - 2, retreat.y - this.y - 2,
 						retreat.width + 5, retreat.height + 2);
 			}
-			if (battle != null && startBattle.visible()) {
+			if (battle != null && preparingGroundBattle) {
 				drawNextVehicleToDeploy(g2);
 			}
 			
@@ -1703,7 +1705,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		/**
 		 * Render any mine in the specified location.
 		 * @param g2 the graphics context
-		 * @param cx the cell coordinete
+		 * @param cx the cell coordinate
 		 * @param cy the cell coordinate
 		 */
 		void drawMine(Graphics2D g2, int cx, int cy) {
@@ -2590,13 +2592,17 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 			buildingInfoPanel.repairing.enabled(planet().owner == player());
 			buildingInfoPanel.damaged.enabled(planet().owner == player());
 			
-			upgradePanel.visible(
-					b != null && b.type.upgrades.size() > 0 
-					&& buildingInfoPanel.visible() 
-					&& b.isComplete()
-					&& !b.isSeverlyDamaged()
-					&& planet().owner == player()
-			);
+			boolean upgradeVisible = 
+                    b != null && b.type.upgrades.size() > 0 
+                    && buildingInfoPanel.visible() 
+                    && b.isComplete()
+                    && !b.isSeverlyDamaged()
+                    && planet().owner == player();
+                    
+			upgradePanel.visible(upgradeVisible);
+			if (!upgradeVisible) {
+			    upgradePanel.clearTooltips();
+			}
 			
 			if (demolish.enabled()) {
 				setTooltip(demolish, "buildings.demolish.tooltip", (currentBuilding.upgradeLevel + 1) * currentBuilding.type.cost / 2);
@@ -3100,6 +3106,12 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 			}
 			return super.visible(state);
 		}
+		
+		public void clearTooltips() {
+			for (UIImageButton up : steps) {
+				up.tooltip(null);
+			}
+		}
 	}
 	/** 
 	 * Upgrade the current building. 
@@ -3112,7 +3124,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 				player().addMoney(-delta);
 				player().today.buildCost += delta;
 				
-				currentBuilding.buildProgress = currentBuilding.type.hitpoints * 1 / 4;
+				currentBuilding.buildProgress = currentBuilding.type.hitpoints / 4;
 				currentBuilding.hitpoints = currentBuilding.buildProgress;
 				
 				doAllocation();
@@ -3556,7 +3568,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		}
 	}
 	/**
-	 * Try placing a building to the current placementRectange.
+	 * Try placing a building to the current placementRectangle.
 	 * @param more cancel the building mode on successful place?
 	 */
 	void placeBuilding(boolean more) {
@@ -4227,7 +4239,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		return d1 < d2;
 	}
 	/**
-	 * Sacle and position the given rectangle according to the current offset and scale.
+	 * Scale and position the given rectangle according to the current offset and scale.
 	 * @param r the target rectangle
 	 */
 	void scaleToScreen(Rectangle r) {
@@ -4339,7 +4351,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		}
 	};
 	/**
-	 * The defalt estimator for distance away from the target.
+	 * The default estimator for distance away from the target.
 	 */
 	final Func2<Location, Location, Integer> defaultEstimator = new Func2<Location, Location, Integer>() {
 		@Override
@@ -4391,7 +4403,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 	}
 	/** The ground war simulation. */
 	void doGroundWarSimulation() {
-		if (startBattle.visible() || commons.simulation.paused()) {
+		if (preparingGroundBattle || commons.simulation.paused()) {
 			return;
 		}
 		
@@ -4606,7 +4618,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 	/**
 	 * Apply groundwar damage to the given building.
 	 * @param b the target building
-	 * @param damage the damage amout
+	 * @param damage the damage amount
 	 */
 	void damageBuilding(Building b, double damage) {
 		int hpBefore = b.hitpoints;
@@ -5641,7 +5653,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		return getBuildingAt(render.getLocationAt(mx, my));
 	}
 	/**
-	 * Retrive the unit at the given location.
+	 * Retrieve the unit at the given location.
 	 * @param mx the mouse X
 	 * @param my the mouse Y
 	 * @return the unit or null if empty
@@ -5966,9 +5978,8 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 			battle.targetPlanet.takeover(battle.attacker.owner);
 			BattleSimulator.applyPlanetConquered(battle.targetPlanet, BattleSimulator.PLANET_CONQUER_LOSS);
 			battle.groundwarWinner = battle.attacker.owner;
-			BattleInfo bi = battle;
 			BattlefinishScreen bfs = (BattlefinishScreen)displaySecondary(Screens.BATTLE_FINISH);
-			bfs.displayBattleSummary(bi);
+			bfs.displayBattleSummary(battle);
 			return;
 		}
 		
@@ -5985,13 +5996,17 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		InventoryItems iis = (atBuildings ? planet() : battle.attacker).inventory();
 		createGroundUnits(atBuildings, iis.iterable(), unitsToPlace);
 		
-		startBattle.visible(true);
+		preparingGroundBattle = true;
 		
 		battle.incrementGroundBattles();
 		
 		if (!(player().ai instanceof AIUser)) {
 			placeGroundUnits(atBuildings, unitsToPlace);
-			startBattle.onClick.invoke();
+			doStartBattle();
+		}
+
+		if (unitsToPlace.isEmpty()) {
+			doStartBattle();
 		}
 	}
 	/** Deploy the non-player vehicles. */
@@ -6188,7 +6203,8 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 
 		doAddGuns();
 		deployNonPlayerVehicles();
-		
+
+		preparingGroundBattle = false;
 		startBattle.visible(false);
 		if (planet().owner != player()) {
 			retreat.visible(true);
@@ -6204,7 +6220,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 	 * @param my the mouse Y coordinate
 	 */
 	void toggleUnitPlacementAt(int mx, int my) {
-		if (startBattle.visible()) {
+		if (preparingGroundBattle) {
 			deploySpray = false;
 			undeploySpray = false;
 			if (canPlaceUnitAt(mx, my)) {
@@ -6241,6 +6257,8 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 				u.y = lm.y;
 				addUnitLocation(u);
 				battlePlacements.remove(lm);
+
+				startBattle.visible(unitsToPlace.isEmpty());
 			}
 		}
 	}
@@ -6257,6 +6275,8 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 				units.remove(u);
 				unitsToPlace.addFirst(u);
 				removeUnitLocation(u);
+
+				startBattle.visible(unitsToPlace.isEmpty());
 			}
 		}
 	}
@@ -6703,7 +6723,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 	}
 
 	/**
-	 * Update the varios components according to the current game state.
+	 * Update the various components according to the current game state.
 	 * @param surface the planet surface
 	 * @return the planet statistics
 	 */
@@ -6737,7 +6757,7 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 		buildingInfoPanel.visible(planet().owner == player() && showBuildingInfo);
 		infoPanel.visible(knowledge(planet(), PlanetKnowledge.NAME) >= 0 && showInfo && battle == null);
 		
-		boolean showTankPanel = (!units.isEmpty() || !guns.isEmpty()) && !startBattle.visible();
+		boolean showTankPanel = (!units.isEmpty() || !guns.isEmpty()) && !preparingGroundBattle;
 		tankPanel.visible(showTankPanel);
 		moveUnit.visible(showTankPanel);
 		attackUnit.visible(showTankPanel);
@@ -6809,8 +6829,8 @@ public class PlanetScreen extends ScreenBase implements GroundwarWorld {
 	}
 	/** Center the view on the planet's middle. */
 	void centerScreen() {
-		render.offsetX = -(surface().boundingRectangle.width - width) / 2;
-		render.offsetY = -(surface().boundingRectangle.height - height) / 2;
+		render.offsetX = -(int)((surface().boundingRectangle.width * render.scale - width) / 2);
+		render.offsetY = -(int)((surface().boundingRectangle.height * render.scale - height) / 2);
 	}
 	/**
 	 * Retreat from the current attack.

@@ -1,11 +1,21 @@
-<h1>Current game version: <a href='http://open-ig-dev.blogspot.hu/2015/03/game-version-095205-released.html'>BETA (0.95.205)</a></h1>
+<h1>Current game version: <a href='http://open-ig-dev.blogspot.hu/2018/08/game-version-095211-released.html'>BETA (0.95.211)</a></h1>
 
 ![Facebook](http://static.viewbook.com/images/social_icons/facebook_32.png) Follow us on [Facebook](https://www.facebook.com/OpenImperiumGalactica)!
 
+```
+||||||||||||||||||||||||||||||||||||||||
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+```
+
 *<a href='https://github.com/akarnokd/open-ig/raw/master/open-ig-launcher.jar'><img src='https://github.com/akarnokd/open-ig/raw/master/images/generic/dl_arrow.gif'/>  Installer</a>* (version 0.45)
 
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+||||||||||||||||||||||||||||||||||||||||
+```
+
 # Introduction
-*Open Imperium Galactica* (Open-IG) is an open source [Java](http://www.oracle.com/technetwork/java/javase/downloads/index.html Java)<sup>TM</sup> reimplementation of the [Digital Reality](http://www.digitalreality.hu Digital Reality) game [Imperium Galactica](http://en.wikipedia.org/wiki/Imperium_Galactica Imperium Galactica), a popular, 4X (eXplore, eXpand, eXploit, and eXterminate) real-time space strategy game developed around 1996 in Hungary. 
+*Open Imperium Galactica* (Open-IG) is an open source [Java](http://www.oracle.com/technetwork/java/javase/downloads/index.html)<sup>TM</sup> reimplementation of the [Digital Reality](http://www.digitalreality.hu) game [Imperium Galactica](http://en.wikipedia.org/wiki/Imperium_Galacticaa), a popular, 4X (eXplore, eXpand, eXploit, and eXterminate) real-time space strategy game developed around 1996 in Hungary. 
 
 The project contains all necessary files (with the permission from the copyright owner Digital Reality) to run the game standalone, there is no need for the original Imperium Galactica files.
 

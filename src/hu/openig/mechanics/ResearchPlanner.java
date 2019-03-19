@@ -31,7 +31,7 @@ public class ResearchPlanner extends Planner {
 	/** The set of resource names. */
 	private static final Set<String> LAB_RESOURCE_NAMES = 
 			new HashSet<>(Arrays.asList("ai", "civil", "computer", "mechanical", "military"));
-	/** Indicator to allow actions that spendmoney. */
+	/** Indicator to allow actions those spend money. */
 	boolean maySpendMoney;
 	/** Labs increasing in number of labs. */
 	static final Comparator<AIPlanet> LABS_INCREASING = new Comparator<AIPlanet>() {
@@ -51,6 +51,9 @@ public class ResearchPlanner extends Planner {
 	}
 	@Override
 	public void plan() {
+	    if (world.level < 3) {
+	        return;
+	    }
 		world.researchRequiresColonization = false;
 		if (world.runningResearch != null) {
 			// if not enough labs, stop research and let the other management tasks apply

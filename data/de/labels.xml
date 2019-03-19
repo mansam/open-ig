@@ -2435,7 +2435,7 @@
 	<entry key='chat.merchant2.n8'>Hey! Don't fire! We're going, you trigger happy maniac!</entry>
 	<entry key='chat.merchant3.n0'>Ship, please state name and destination!</entry>
 	<entry key='chat.merchant3.n1'>This is ECHO, following a trading course.</entry>
-	<entry key='chat.merchant3.n2'>Thank's, ECHO. Continue on present course.</entry>
+	<entry key='chat.merchant3.n2'>Thanks, ECHO. Continue on present course.</entry>
 	<entry key='chat.merchant3.n3'>Are you interested in explosions?</entry>
 	<entry key='chat.merchant3.n3.o'>Hey! I could use a bit of target practice!</entry>
 	<entry key='chat.merchant3.n4'>Thank you very much!</entry>
@@ -3181,10 +3181,10 @@
 	<entry key='planets.Exterior 17'>Exterior 17</entry>
 	<entry key='planets.Exterior 18'>Exterior 18</entry>
 	<entry key='planets.Exterior 19'>Exterior 19</entry>
-	<entry key='planets.Exterior 19'>Exterior 19</entry>
 	<entry key='planets.Exterior 20'>Exterior 20</entry>
 	<entry key='planets.Exterior 21'>Exterior 21</entry>
 	<entry key='planets.Exterior 22'>Exterior 22</entry>
+    <entry key='planets.Exterior 23'>Exterior 23</entry>
 	<entry key='planets.Garthog 1'>Garthog 1</entry>
 	<entry key='planets.Garthog 2'>Garthog 2</entry>
 	<entry key='planets.Garthog 3'>Garthog 3</entry>
@@ -3307,6 +3307,7 @@
 	<entry key='profiles.select_button'>Select / Create</entry>
 	<entry key='profiles.back_button'>Back</entry>
 	<entry key='profiles.existing_profiles'>Existing profiles:</entry>
+	<entry key='settings.auto_display_objectives'>Automatically display objective changes</entry>
 	<entry key='settings.continuous_money'>Continuous money/morale calculation</entry>
 	<entry key='info.planetlist_labs'>Lab info</entry>
 	<entry key='info.planetlist_problems'>Problems</entry>

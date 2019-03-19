@@ -106,13 +106,11 @@ import java.util.Set;
  * @author akarnokd, 2010.01.06.
  */
 public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
-	/** Annotation to show a component on a specified panel mode and side. */
+	/** Annotation to show a component on a specified panel mode. */
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface Show {
 		/** The panel mode. */
 		PanelMode mode();
-		/** Is the left side? */
-		boolean left();
 	}
 	/** The panel mode. */
 	enum PanelMode {
@@ -208,10 +206,10 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	final Rectangle minimap = new Rectangle();
 	/** The location of the main window area. */
 	final Rectangle mainmap = new Rectangle();
-	/** The left inner panel. */
-	final Rectangle leftPanel = new Rectangle();
-	/** The right inner panel. */
-	final Rectangle rightPanel = new Rectangle();
+	/** The left status panel. */
+	StatusPanel leftPanel;
+	/** The right status panel. */
+	StatusPanel rightPanel;
 	/** The initial battle settings. */
 	BattleInfo battle;
 	/** Show the planet. */
@@ -248,59 +246,8 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	Point selectionStart;
 	/** The selection box end point. */
 	Point selectionEnd;
-	/** Left ship status button. */
-	AnimatedRadioButton leftShipStatus;
-	/** Right ship status button. */
-	AnimatedRadioButton rightShipStatus;
-	/** Left fleet statistics button. */
-	AnimatedRadioButton leftStatistics;
-	/** Right fleet statistics button. */
-	AnimatedRadioButton rightStatistics;
-	/** Left ship information list. */
-	AnimatedRadioButton leftShipInformation;
-	/** Right ship information list. */
-	AnimatedRadioButton rightShipInformation;
-	/** Left communicator window. */
-	AnimatedRadioButton leftCommunicator;
-	/** Right communicator window. */
-	AnimatedRadioButton rightCommunicator;
-	/** Left movie. */
-	AnimatedRadioButton leftMovie;
-	/** Right movie. */
-	AnimatedRadioButton rightMovie;
-	/** The list of animation buttons. */
-	List<AnimatedRadioButton> animatedButtonsLeft = new ArrayList<>();
-	/** The list of animation buttons. */
-	List<AnimatedRadioButton> animatedButtonsRight = new ArrayList<>();
-	/** The left equipment configuration. */
-	@Show(mode = PanelMode.SHIP_STATUS, left = true)
-	ShipStatusPanel leftStatusPanel;
-	/** The right equipment configuration. */
-	@Show(mode = PanelMode.SHIP_STATUS, left = false)
-	ShipStatusPanel rightStatusPanel;
 	/** We are in layout selection mode? */
 	boolean layoutSelectionMode;
-	/** Left statistics panel. */
-	@Show(mode = PanelMode.STATISTICS, left = true)
-	StatisticsPanel leftStatisticsPanel;
-	/** Right statistics panel. */
-	@Show(mode = PanelMode.STATISTICS, left = false)
-	StatisticsPanel rightStatisticsPanel;
-	/** The left ship information panel. */
-	@Show(mode = PanelMode.SHIP_INFORMATION, left = true)
-	ShipInformationPanel leftShipInfoPanel;
-	/** The right ship information panel. */
-	@Show(mode = PanelMode.SHIP_INFORMATION, left = false)
-	ShipInformationPanel rightShipInfoPanel;
-	/** The left ship information panel. */
-	@Show(mode = PanelMode.COMMUNICATOR, left = true)
-	ChatPanel leftChatPanel;
-	/** The right ship information panel. */
-	@Show(mode = PanelMode.COMMUNICATOR, left = false)
-	ChatPanel rightChatPanel;
-	/** The initial layout panel. */
-	@Show(mode = PanelMode.LAYOUT, left = false)
-	LayoutPanel layoutPanel;
 	/** Fleet control button. */
 	ThreePhaseButton stopButton;
 	/** Fleet control button. */
@@ -410,50 +357,16 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 		retreat.visible = true;
 		confirmRetreat = new TwoPhaseButton(33, 19 + 170, commons.spacewar().sure, commons.common().disabledPattern);
 		stopRetreat = new TwoPhaseButton(33, 19 + 170, commons.spacewar().stopTall, commons.common().disabledPattern);
-		
-		
-		leftShipStatus = createButton(commons.spacewar().ships, true, PanelMode.SHIP_STATUS);
-		rightShipStatus = createButton(commons.spacewar().ships, false, PanelMode.SHIP_STATUS);
-		
-		leftStatistics = createButton(commons.spacewar().statistics, true, PanelMode.STATISTICS);
-		rightStatistics = createButton(commons.spacewar().statistics, false, PanelMode.STATISTICS);
-		
-		leftShipInformation = createButton(commons.spacewar().shipInfo, true, PanelMode.SHIP_INFORMATION);
-		rightShipInformation = createButton(commons.spacewar().shipInfo, false, PanelMode.SHIP_INFORMATION);
-		
-		leftCommunicator = createButton(commons.spacewar().computers, true, PanelMode.COMMUNICATOR);
-		rightCommunicator = createButton(commons.spacewar().computers, false, PanelMode.COMMUNICATOR);
-		
-		leftMovie = createButton(commons.spacewar().movies, true, PanelMode.MOVIE);
-		rightMovie = createButton(commons.spacewar().movies, false, PanelMode.MOVIE);
-		
-		leftStatusPanel = new ShipStatusPanel();
-		leftStatusPanel.visible(false);
-		rightStatusPanel = new ShipStatusPanel();
-		rightStatusPanel.visible(false);
-		
-		leftStatisticsPanel = new StatisticsPanel();
-		leftStatisticsPanel.visible(false);
-		rightStatisticsPanel = new StatisticsPanel();
-		rightStatisticsPanel.visible(false);
-		
-		leftShipInfoPanel = new ShipInformationPanel();
-		leftShipInfoPanel.visible(false);
-		rightShipInfoPanel = new ShipInformationPanel();
-		rightShipInfoPanel.visible(false);
-		
-		layoutPanel = new LayoutPanel();
-		layoutPanel.visible(false);
-		
+
+
+		leftPanel = new StatusPanel(true);
+		rightPanel = new StatusPanel(false);
+
 		selectionPanel = new SelectionPanel();
-		
-		leftChatPanel = new ChatPanel();
-		leftChatPanel.visible(false);
-		rightChatPanel = new ChatPanel();
-		rightChatPanel.visible(false);
-		
+
 		addThis();
 	}
+
 	/**
 	 * Remove units from group.
 	 * @param i the group index
@@ -468,84 +381,11 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 		}
 	}
 	/**
-	 * Creates an animation button with the panel mode settings.
-	 * @param phases the animation phases
-	 * @param left put it onto the left side?
-	 * @param mode the panel mode
-	 * @return the button
-	 */
-	AnimatedRadioButton createButton(BufferedImage[] phases, final boolean left, final PanelMode mode) {
-		final AnimatedRadioButton btn = new AnimatedRadioButton(phases);
-		btn.action = new Action0() {
-			@Override
-			public void invoke() {
-				displayPanel(mode, left);
-				selectButton(btn, left);
-			}
-		};
-		if (left) {
-			animatedButtonsLeft.add(btn);
-		} else {
-			animatedButtonsRight.add(btn);
-		}
-		return btn;
-	}
-	/**
-	 * Select the specified radio button.
-	 * @param btn the button to select
-	 * @param left on the left side?
-	 */
-	void selectButton(AnimatedRadioButton btn, boolean left) {
-		for (AnimatedRadioButton b : (left ? animatedButtonsLeft : animatedButtonsRight)) {
-			b.selected = b == btn;
-		}
-		askRepaint();
-	}
-	/**
-	 * Display the specified information panel on the given side.
-	 * @param mode the panel mode
-	 * @param left on the left side?
-	 */
-	void displayPanel(PanelMode mode, boolean left) {
-		for (Field f : getClass().getDeclaredFields()) {
-			Show a = f.getAnnotation(Show.class);
-			if (a != null) {
-				try {
-					if (a.left() == left) {
-						UIComponent.class.cast(f.get(this)).visible(a.mode() == mode);
-					}
-				} catch (IllegalAccessException ex) {
-					Exceptions.add(ex);
-				}
-			}
-		}
-		if (mode == PanelMode.COMMUNICATOR) {
-			if (left && rightChatPanel.visible()) {
-				rightChatPanel.visible(false);
-				rightShipInfoPanel.visible(true);
-				selectButton(rightShipInformation, false);
-			} else
-			if (!left && leftChatPanel.visible()) {
-				leftChatPanel.visible(false);
-				leftShipInfoPanel.visible(true);
-				selectButton(leftShipInformation, true);
-			}
-		}
-	}
-	/**
 	 * Animate selected buttons.
 	 */
 	void doButtonAnimations() {
-		for (AnimatedRadioButton arb : animatedButtonsLeft) {
-			if (arb.selected) {
-				arb.animationIndex = (arb.animationIndex + 1) % (arb.phases.length - 1);
-			}
-		}
-		for (AnimatedRadioButton arb : animatedButtonsRight) {
-			if (arb.selected) {
-				arb.animationIndex = (arb.animationIndex + 1) % (arb.phases.length - 1);
-			}
-		}
+		leftPanel.doButtonAnimations();
+		rightPanel.doButtonAnimations();
 		askRepaint();
 	}
 
@@ -555,7 +395,7 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 		switch (e.type) {
 		case MOVE:
 			if (commons.config().customCursors) {
-				SpacewarStructure overState = mouseOver(structures);
+				SpacewarStructure overState = mouseOver(e.x, e.y, structures);
 				List<SpacewarStructure> selection = getSelection();
 				if (!mainmap.contains(e.x, e.y)) {
 					commons.setCursor(Cursors.POINTER);
@@ -659,15 +499,15 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 					needRepaint = true;
 				}
 			}
-			if (e.has(Button.LEFT) && mainmap.contains(e.x, e.y)) {
+
+			Point2D.Double spaceMouse = mouseToSpace(e.x, e.y);
+			if (e.has(Button.LEFT) && space.contains(spaceMouse)) {
 				if (moveButton.selected) {
-					Point2D.Double p = mouseToSpace(e.x, e.y);
-					doMoveSelectedShips(p.x, p.y);
+					doMoveSelectedShips(spaceMouse.x, spaceMouse.y);
 					moveButton.selected = false;
 				} else
 				if (rocketButton.selected) {
-					Point2D.Double p = mouseToSpace(e.x, e.y);
-					SpacewarStructure s = enemyAt(p.x, p.y);
+					SpacewarStructure s = enemyAt(spaceMouse.x, spaceMouse.y);
 					if (s != null) {
 						doAttackWithRockets(s);
 					} else {
@@ -676,8 +516,7 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 					}
 				} else
 				if (attackButton.selected) {
-					Point2D.Double p = mouseToSpace(e.x, e.y);
-					SpacewarStructure s = enemyAt(p.x, p.y);
+					SpacewarStructure s = enemyAt(spaceMouse.x, spaceMouse.y);
 					if (s != null) {
 						doAttackWithShips(s);
 						attackButton.selected = false;
@@ -696,12 +535,11 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 					}
 				}
 			}
-			if (e.has(Button.RIGHT) && mainmap.contains(e.x, e.y)) {
+			if (e.has(Button.RIGHT) && space.contains(spaceMouse)) {
 				if (config.classicControls) {
-					Point2D.Double p = mouseToSpace(e.x, e.y);
-					SpacewarStructure s = enemyAt(p.x, p.y);
+					SpacewarStructure s = enemyAt(spaceMouse.x, spaceMouse.y);
 					if (s == null) {
-						doMoveSelectedShips(p.x, p.y);
+						doMoveSelectedShips(spaceMouse.x, spaceMouse.y);
 						moveButton.selected = false;
 					} else {
 						if (rocketButton.selected) {
@@ -714,12 +552,10 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 					
 				} else {
 					if (e.has(Modifier.SHIFT)) {
-						Point2D.Double p = mouseToSpace(e.x, e.y);
-						doMoveSelectedShips(p.x, p.y);
+						doMoveSelectedShips(spaceMouse.x, spaceMouse.y);
 					} else
 					if (e.has(Modifier.CTRL)) {
-						Point2D.Double p = mouseToSpace(e.x, e.y);
-						SpacewarStructure s = enemyAt(p.x, p.y);
+						SpacewarStructure s = enemyAt(spaceMouse.x, spaceMouse.y);
 						if (s != null) {
 							doAttackWithShips(s);
 						}
@@ -936,33 +772,8 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	}
 	/** Display information about the selected ship. */
 	void displaySelectedShipInfo() {
-		List<SpacewarStructure> currentSelection = getSelection();
-		if (currentSelection.size() == 1) {
-			SpacewarStructure sws = currentSelection.get(0);
-			leftStatusPanel.update(sws);
-			rightStatusPanel.update(sws);
-			leftShipInfoPanel.item = sws;
-			rightShipInfoPanel.item = sws;
-		} else {
-			leftStatusPanel.update(null);
-			rightStatusPanel.update(null);
-			leftShipInfoPanel.item = null;
-			rightShipInfoPanel.item = null;
-			
-			if (currentSelection.size() > 1) {
-				leftStatusPanel.displayMany();
-				rightStatusPanel.displayMany();
-				
-				leftShipInfoPanel.isMany = true;
-				rightShipInfoPanel.isMany = true;
-			} else {
-				leftStatusPanel.displayNone();
-				rightStatusPanel.displayNone();
-				
-				leftShipInfoPanel.isMany = false;
-				rightShipInfoPanel.isMany = false;
-			}
-		}
+		leftPanel.displaySelectedShipInfo();
+		rightPanel.displaySelectedShipInfo();
 	}
 	/**
 	 * Test the structures in source.
@@ -1009,14 +820,12 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 				doChatStep();
 			}
 		});
-		selectButton(leftShipStatus, true);
-		selectButton(rightShipStatus, false);
+		leftPanel.onEnter();
+		rightPanel.onEnter();
 		selectionBox = false;
 		retreat.visible = true;
 		confirmRetreat.visible = false;
 		stopRetreat.visible = false;
-		layoutPanel.okHover = false;
-		layoutPanel.okDown = false;
 		displaySelectedShipInfo();
 	}
 
@@ -1032,21 +841,16 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 		chat = null;
 		
 		// cleanup
-		
 		battle = null;
 		structures.clear();
 		projectiles.clear();
 		explosions.clear();
 		scrambled.clear();
 		soundsToPlay.clear();
-		
-		leftStatusPanel.clear();
-		rightStatusPanel.clear();
-		
-		leftShipInfoPanel.clear();
-		rightShipInfoPanel.clear();
-		layoutPanel.selected = null;
-		
+
+		leftPanel.clear();
+		rightPanel.clear();
+
 		selectionPanel.clear();
 		groups.clear();
 		
@@ -1063,44 +867,12 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 		minimap.setBounds(62, 168 + 20, 110, 73);
 		mainmap.setBounds(175, 23, getInnerWidth() - 3 - commons.spacewar().commands.getWidth(),
 				getInnerHeight() - 38 - 3 - commons.spacewar().panelStatLeft.getHeight());
-		leftPanel.setBounds(32, getInnerHeight() - 18 - 3 - 195, 286, 195);
-		rightPanel.setBounds(getInnerWidth() - 33 - 286, getInnerHeight() - 18 - 3 - 195, 286, 195);
-		
+		leftPanel.location(0, getInnerHeight() - leftPanel.height - 18);
+		rightPanel.location(getInnerWidth() - rightPanel.width, getInnerHeight() - rightPanel.height - 18);
 
-		leftShipStatus.location(leftPanel.x - 28, leftPanel.y + 1);
-		leftStatistics.location(leftPanel.x - 28, leftPanel.y + 41);
-		leftShipInformation.location(leftPanel.x - 28, leftPanel.y + 81);
-		leftCommunicator.location(leftPanel.x - 28, leftPanel.y + 121);
-		leftMovie.location(leftPanel.x - 28, leftPanel.y + 161);
+		selectionPanel.location(leftPanel.x + leftPanel.width + 3, leftPanel.y + StatusPanel.PANEL_Y);
+		selectionPanel.size(Math.max(0, rightPanel.x - 2 - selectionPanel.x), StatusPanel.PANEL_HEIGHT);
 
-		rightShipStatus.location(rightPanel.x + rightPanel.width + 5, rightPanel.y + 1);
-		rightStatistics.location(rightPanel.x + rightPanel.width + 5, rightPanel.y + 41);
-		rightShipInformation.location(rightPanel.x + rightPanel.width + 5, rightPanel.y + 81);
-		rightCommunicator.location(rightPanel.x + rightPanel.width + 5, rightPanel.y + 121);
-		rightMovie.location(rightPanel.x + rightPanel.width + 5, rightPanel.y + 161);
-
-		selectionPanel.location(leftPanel.x + leftPanel.width + 3, leftPanel.y);
-		selectionPanel.size(Math.max(0, rightPanel.x - 2 - selectionPanel.x), leftPanel.height);
-		
-		for (Field f : getClass().getDeclaredFields()) {
-			Show a = f.getAnnotation(Show.class);
-			if (a != null) {
-				if (a.left()) {
-					try {
-						UIComponent.class.cast(f.get(this)).location(leftPanel.x, leftPanel.y);
-					} catch (IllegalAccessException ex) {
-						Exceptions.add(ex);
-					}
-				} else {
-					try {
-						UIComponent.class.cast(f.get(this)).location(rightPanel.x, rightPanel.y);
-					} catch (IllegalAccessException ex) {
-						Exceptions.add(ex);
-					}
-				}
-			}
-		}
-		
 		pan(0, 0);
 	}
 
@@ -1159,16 +931,13 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 		g2.fill(minimap);
 		
 		g2.fill(mainmap);
-		
-		g2.drawImage(commons.spacewar().panelIg, leftPanel.x, leftPanel.y, null);
-		g2.drawImage(commons.spacewar().panelIg, rightPanel.x, rightPanel.y, null);
-		
+
 		drawBattle(g2);
 		
 		// finish layout selection
 		if (layoutSelectionMode && !commons.simulation.paused()) {
 			setLayoutSelectionMode(false);
-			displayPanel(PanelMode.COMMUNICATOR, false);
+			rightPanel.displayPanel(PanelMode.COMMUNICATOR);
 			enableFleetControls(true);
 			retreat.enabled = battle.allowRetreat;
 		}
@@ -1404,26 +1173,26 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 			}
 		}
 
-		
-		leftChatPanel.clear();
-		rightChatPanel.clear();
-		
+
+		leftPanel.chatPanel.clear();
+		rightPanel.chatPanel.clear();
+
 		if (battle.chat != null) {
 			chat = world().chats.get(battle.chat);
 		} else {
 			chat = null;
 		}
-		
-		displayPanel(PanelMode.SHIP_STATUS, true);
+
+		leftPanel.displayPanel(PanelMode.SHIP_STATUS);
 		if (battle.attacker.owner == player()
 				&& (player().ai instanceof AIUser)
 				&& (nearbyPlanet == null 
 				|| nearbyPlanet.owner != player())) {
-			displayPanel(PanelMode.LAYOUT, false);
+			rightPanel.displayPanel(PanelMode.LAYOUT);
 			setLayoutSelectionMode(true);
 			enableFleetControls(false);
 		} else {
-			displayPanel(PanelMode.COMMUNICATOR, false);
+			rightPanel.displayPanel(PanelMode.COMMUNICATOR);
 			setLayoutSelectionMode(false);
 			commons.simulation.resume();
 			enableFleetControls(true);
@@ -1434,11 +1203,11 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 			node = chat.getStart();
 			
 			if (node.enemy) {
-				leftChatPanel.addLine(TextRenderer.YELLOW, get(node.message));
-				rightChatPanel.addLine(TextRenderer.YELLOW, get(node.message));
+				leftPanel.chatPanel.addLine(TextRenderer.YELLOW, get(node.message));
+				rightPanel.chatPanel.addLine(TextRenderer.YELLOW, get(node.message));
 			} else {
-				leftChatPanel.options.add(node);
-				rightChatPanel.options.add(node);
+				leftPanel.chatPanel.options.add(node);
+				rightPanel.chatPanel.options.add(node);
 			}
 		}
 		
@@ -2467,18 +2236,12 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	void setLayoutSelectionMode(boolean enabled) {
 		layoutSelectionMode = enabled;
 		if (enabled) {
-			leftCommunicator.visible(false);
-			leftMovie.visible(false);
-			for (UIComponent c : animatedButtonsRight) {
-				c.visible(false);
-			}
+			leftPanel.communicator.visible(false);
+			leftPanel.movie.visible(false);
+			rightPanel.setAllButtonsVisible(false);
 		} else {
-			for (UIComponent c : animatedButtonsLeft) {
-				c.visible(true);
-			}
-			for (UIComponent c : animatedButtonsRight) {
-				c.visible(true);
-			}
+			leftPanel.setAllButtonsVisible(true);
+			rightPanel.setAllButtonsVisible(true);
 		}
 	}
 	/** The battle statistics record. */
@@ -2867,9 +2630,8 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	 * @param ships the ship sequence
 	 * @return {@code SpacewarStructure} which has mouse over or null
 	 */
-	SpacewarStructure mouseOver(Iterable<? extends SpacewarStructure> ships) {
-		Point mousePos = UIMouse.current(commons.control().renderingComponent());
-		Point2D spacePos = mouseToSpace(mousePos.x, mousePos.y);
+	SpacewarStructure mouseOver(int x, int y, Iterable<? extends SpacewarStructure> ships) {
+		Point2D spacePos = mouseToSpace(x, y);
 		for (SpacewarStructure sws : ships) {
 			if (sws.intersects(spacePos.getX(), spacePos.getY(), 1, 1)) {
 				return sws;
@@ -2981,7 +2743,7 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 			if (e.has(Type.UP)) {
 				if (okDown && withinOk(e)) {
 					okDown = false;
-					displayPanel(PanelMode.COMMUNICATOR, false);
+					rightPanel.displayPanel(PanelMode.COMMUNICATOR);
 					setLayoutSelectionMode(false);
 					enableFleetControls(true);
 					retreat.enabled = battle.allowRetreat;
@@ -3795,12 +3557,9 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 			Node fn = chat.getFlee();
 			if (fn != null && node != fn) {
 				node = fn;
-				
-				leftChatPanel.options.clear();
-				rightChatPanel.options.clear();
-				
-				leftChatPanel.addLine(TextRenderer.YELLOW, get(fn.message));
-				rightChatPanel.addLine(TextRenderer.YELLOW, get(fn.message));
+
+				leftPanel.chatFlee(fn);
+				rightPanel.chatFlee(fn);
 			}
 		}
 	}
@@ -5247,40 +5006,8 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	 * Print the next character.
 	 */
 	void doChatStep() {
-		if (leftChatPanel.visible() || rightChatPanel.visible()) {
-			boolean b1 = leftChatPanel.nextChar();
-			boolean b2 = rightChatPanel.nextChar();
-			
-			if (b1 || b2) {
-				if (!node.enemy) {
-					if (node.transitions.size() == 1) {
-						Node n2 = chat.get(node.transitions.get(0));
-						leftChatPanel.addLine(n2.enemy ? TextRenderer.YELLOW : TextRenderer.GREEN, get(n2.message));
-						rightChatPanel.addLine(n2.enemy ? TextRenderer.YELLOW : TextRenderer.GREEN, get(n2.message));
-						node = n2;
-					}
-				} else {
-					leftChatPanel.options.clear();
-					rightChatPanel.options.clear();
-					for (String n2t : node.transitions) {
-						Node n2 = chat.get(n2t);
-						
-						leftChatPanel.options.add(n2);
-						rightChatPanel.options.add(n2);
-					}
-					if (node.retreat) {
-						if (node != chat.getFlee()) {
-							achievement("achievement.do_you_chat");
-						}
-						battle.enemyFlee = true;
-						for (SpacewarStructure sws : structures(nonPlayer())) {
-							flee(sws);
-						}
-					}
-				}
-				commons.control().moveMouse();
-			}
-		}
+		leftPanel.doChatStep();
+		rightPanel.doChatStep();
 	}
 	/**
 	 * Grant an achievement with the given ID if not already awarded.
@@ -5297,12 +5024,9 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	 * @param n the node 
 	 */
 	void doSelectOption(Node n) {
-		leftChatPanel.options.clear();
-		rightChatPanel.options.clear();
-		
-		leftChatPanel.addLine(n.enemy ? TextRenderer.YELLOW : TextRenderer.GREEN, get(n.message));
-		rightChatPanel.addLine(n.enemy ? TextRenderer.YELLOW : TextRenderer.GREEN, get(n.message));
-		
+		leftPanel.doSelectOption(n);
+		rightPanel.doSelectOption(n);
+
 		node = n;
 		
 		world().scripting.onSpaceChat(this, chat, n);
@@ -5575,6 +5299,275 @@ public class SpacewarScreen extends ScreenBase implements SpacewarWorld {
 	}
 	@Override
 	public boolean isFleeing(SpacewarStructure s) {
-		return s.moveTo != null && (s.moveTo.x < -100 || s.moveTo.x > 100 + space().width); 
+		return s.moveTo != null && (s.moveTo.x < -100 || s.moveTo.x > 100 + space().width);
+	}
+
+	private class StatusPanel extends UIContainer {
+		/** Equipment configuration. */
+		@Show(mode = PanelMode.SHIP_STATUS)
+		ShipStatusPanel shipStatusPanel;
+		/** Statistics panel. */
+		@Show(mode = PanelMode.STATISTICS)
+		StatisticsPanel statisticsPanel;
+		/** Ship information panel. */
+		@Show(mode = PanelMode.SHIP_INFORMATION)
+		ShipInformationPanel shipInfoPanel;
+		/** Communicator panel. */
+		@Show(mode = PanelMode.COMMUNICATOR)
+		ChatPanel chatPanel;
+		/** The initial layout panel. */
+		@Show(mode = PanelMode.LAYOUT)
+		LayoutPanel layoutPanel;
+		/** Is left panel **/
+		boolean left;
+		/** The list of animation buttons. */
+		List<AnimatedRadioButton> animatedButtons = new ArrayList<>();
+		/** Ship status button. */
+		AnimatedRadioButton shipStatus;
+		/** Fleet statistics button. */
+		AnimatedRadioButton statistics;
+		/** Ship information list. */
+		AnimatedRadioButton shipInformation;
+		/** Communicator window. */
+		AnimatedRadioButton communicator;
+		/** Movie. */
+		AnimatedRadioButton movie;
+
+		private static final int LEFT_PANEL_X = 32;
+		private static final int RIGHT_PANEL_X = 1;
+		private static final int PANEL_Y = 3;
+		private static final int PANEL_WIDTH = 286;
+		private static final int PANEL_HEIGHT = 195;
+
+		StatusPanel(boolean left) {
+			this.left = left;
+
+			size(left ? 319 : 320, 201);
+
+			shipStatus = createButton(commons.spacewar().ships, PanelMode.SHIP_STATUS);
+			statistics = createButton(commons.spacewar().statistics, PanelMode.STATISTICS);
+			shipInformation = createButton(commons.spacewar().shipInfo, PanelMode.SHIP_INFORMATION);
+			communicator = createButton(commons.spacewar().computers, PanelMode.COMMUNICATOR);
+			movie = createButton(commons.spacewar().movies, PanelMode.MOVIE);
+
+			shipStatusPanel = new ShipStatusPanel();
+			shipStatusPanel.visible(false);
+
+			statisticsPanel = new StatisticsPanel();
+			statisticsPanel.visible(false);
+
+			shipInfoPanel = new ShipInformationPanel();
+			shipInfoPanel.visible(false);
+
+			chatPanel = new ChatPanel();
+			chatPanel.visible(false);
+
+			layoutPanel = new LayoutPanel();
+			layoutPanel.visible(false);
+
+			addThis();
+
+			applyButtonPosition();
+			applyPanelPositions();
+		}
+
+		void onEnter() {
+			selectButton(leftPanel.shipStatus);
+			layoutPanel.okHover = false;
+			layoutPanel.okDown = false;
+		}
+
+		/** Calculates buttons positions basing on left/right flag. */
+		private void applyButtonPosition() {
+			int x = 4;
+			if (!left) {
+				x += RIGHT_PANEL_X + PANEL_WIDTH + 1;
+			}
+			int y = PANEL_Y;
+			shipStatus.location(x, y + 1);
+			statistics.location(x, y + 41);
+			shipInformation.location(x, y + 81);
+			communicator.location(x, y + 121);
+			movie.location(x, y + 161);
+		}
+
+		/** Calculates panels positions basing on left/right flag. */
+		private void applyPanelPositions() {
+			int x = panelX();
+			for (Field f : getClass().getDeclaredFields()) {
+				Show a = f.getAnnotation(Show.class);
+				if (a != null) {
+					try {
+						UIComponent.class.cast(f.get(this)).location(x, PANEL_Y);
+					} catch (IllegalAccessException ex) {
+						Exceptions.add(ex);
+					}
+				}
+			}
+		}
+
+		@Override
+		public void draw(Graphics2D g2) {
+			g2.drawImage(commons.spacewar().panelIg, panelX(), PANEL_Y, null);
+			super.draw(g2);
+		}
+
+		/** Position of status panels depending on left/right flag */
+		private int panelX() {
+			return left ? LEFT_PANEL_X : RIGHT_PANEL_X;
+		}
+
+		/** Cleanup */
+		@Override
+		public void clear() {
+			shipStatusPanel.clear();
+			shipInfoPanel.clear();
+			layoutPanel.selected = null;
+		}
+
+		/**
+		 * Creates an animation button with the panel mode settings.
+		 * @param phases the animation phases
+		 * @param mode the panel mode
+		 * @return the button
+		 */
+		AnimatedRadioButton createButton(BufferedImage[] phases, final PanelMode mode) {
+			final AnimatedRadioButton btn = new AnimatedRadioButton(phases);
+			btn.action = new Action0() {
+				@Override
+				public void invoke() {
+					displayPanel(mode);
+					selectButton(btn);
+				}
+			};
+			animatedButtons.add(btn);
+			return btn;
+		}
+
+		/**
+		 * Display the specified information panel on the given side.
+		 * @param mode the panel mode
+		 */
+		void displayPanel(PanelMode mode) {
+			for (Field f : getClass().getDeclaredFields()) {
+				Show a = f.getAnnotation(Show.class);
+				if (a != null) {
+					try {
+						UIComponent.class.cast(f.get(this)).visible(a.mode() == mode);
+					} catch (IllegalAccessException ex) {
+						Exceptions.add(ex);
+					}
+				}
+			}
+			if (mode == PanelMode.COMMUNICATOR) {
+				StatusPanel otherPanel = getOtherPanel();
+				if (otherPanel.chatPanel.visible()) {
+					otherPanel.displayPanel(PanelMode.SHIP_INFORMATION);
+					otherPanel.selectButton(otherPanel.shipInformation);
+				}
+			}
+		}
+
+		private StatusPanel getOtherPanel() {
+			return this == leftPanel ? rightPanel : leftPanel;
+		}
+
+		/** Display information about the selected ship. */
+		void displaySelectedShipInfo() {
+			List<SpacewarStructure> currentSelection = getSelection();
+			if (currentSelection.size() == 1) {
+				SpacewarStructure sws = currentSelection.get(0);
+				shipStatusPanel.update(sws);
+				shipInfoPanel.item = sws;
+			} else {
+				shipStatusPanel.update(null);
+				shipInfoPanel.item = null;
+
+				if (currentSelection.size() > 1) {
+					shipStatusPanel.displayMany();
+					shipInfoPanel.isMany = true;
+				} else {
+					shipStatusPanel.displayNone();
+					shipInfoPanel.isMany = false;
+				}
+			}
+		}
+
+		void setAllButtonsVisible(boolean visible) {
+			for (UIComponent c : animatedButtons) {
+				c.visible(visible);
+			}
+		}
+
+		/** Toggle to chat flee. */
+		void chatFlee(Node fn) {
+			chatPanel.options.clear();
+			chatPanel.addLine(TextRenderer.YELLOW, get(fn.message));
+		}
+
+		/**
+		 * Action to select an option.
+		 * @param n the node
+		 */
+		void doSelectOption(Node n) {
+			chatPanel.options.clear();
+			chatPanel.addLine(n.enemy ? TextRenderer.YELLOW : TextRenderer.GREEN, get(n.message));
+		}
+
+		/**
+		 * Print the next character.
+		 */
+		void doChatStep() {
+			if (chatPanel.visible()) {
+				if (chatPanel.nextChar()) {
+					if (!node.enemy) {
+						if (node.transitions.size() == 1) {
+							Node n2 = chat.get(node.transitions.get(0));
+							chatPanel.addLine(n2.enemy ? TextRenderer.YELLOW : TextRenderer.GREEN, get(n2.message));
+							node = n2;
+						}
+					} else {
+						chatPanel.options.clear();
+						for (String n2t : node.transitions) {
+							Node n2 = chat.get(n2t);
+
+							chatPanel.options.add(n2);
+						}
+						if (node.retreat) {
+							if (node != chat.getFlee()) {
+								achievement("achievement.do_you_chat");
+							}
+							battle.enemyFlee = true;
+							for (SpacewarStructure sws : structures(nonPlayer())) {
+								flee(sws);
+							}
+						}
+					}
+					commons.control().moveMouse();
+				}
+			}
+		}
+
+		/**
+		 * Select the specified radio button.
+		 * @param btn the button to select
+		 */
+		void selectButton(AnimatedRadioButton btn) {
+			for (AnimatedRadioButton b : animatedButtons) {
+				b.selected = b == btn;
+			}
+			askRepaint();
+		}
+
+		/**
+		 * Animate selected buttons.
+		 */
+		void doButtonAnimations() {
+			for (AnimatedRadioButton arb : animatedButtons) {
+				if (arb.selected) {
+					arb.animationIndex = (arb.animationIndex + 1) % (arb.phases.length - 1);
+				}
+			}
+		}
 	}
 }

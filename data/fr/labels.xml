@@ -2373,6 +2373,7 @@
   <entry key='planets.Exterior 20'>Exterior 20</entry>
   <entry key='planets.Exterior 21'>Exterior 21</entry>
   <entry key='planets.Exterior 22'>Exterior 22</entry>
+  <entry key='planets.Exterior 23'>Exterior 23</entry>
   <entry key='planets.Exterior 3'>Exterior 3</entry>
   <entry key='planets.Exterior 4'>Exterior 4</entry>
   <entry key='planets.Exterior 5'>Exterior 5</entry>
@@ -2558,6 +2559,7 @@
   <entry key='settings.computer_voice_screen'>Voix pour notifications</entry>
   <entry key='settings.confirm_overwrite'>Overwrite save?</entry>
   <entry key='settings.confirm_quit'>Do you really want to quit?</entry>
+  <entry key='settings.auto_display_objectives'>Automatically display objective changes</entry>
   <entry key='settings.continuous_money'>Calcul du moral et de l&#39;argent en temps réel</entry>
   <entry key='settings.day_night_effects'>Cycle jour/nuit</entry>
   <entry key='settings.fullscreen'>Plein écran</entry>

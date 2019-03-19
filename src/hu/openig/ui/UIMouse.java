@@ -43,7 +43,7 @@ public class UIMouse {
 		LEFT,
 		/** The middle button, i.e., the scroll wheel button. */
 		MIDDLE,
-		/** The rigth button, i.e., the secondary button. */
+		/** The right button, i.e., the secondary button. */
 		RIGHT,
 	}
 	/** The key modifier enumeration. */
@@ -211,26 +211,6 @@ public class UIMouse {
 		m.modifiers.addAll(this.modifiers);
 		m.type = type;
 		return m;
-	}
-	/**
-	 * Returns the current mouse coordinate in
-	 * respect to the given base rendering component
-	 * (the component which gives the base coordinate
-	 * system and painting area for the UIComponents).
-	 * <p>Use this to instantiate a new mouse entered
-	 * message for components which become visible
-	 * but are placed under the mouse button.</p>
-	 * @param c the base rendering component
-	 * @return the current location relative to the component
-	 */
-	public static Point current(Component c) {
-		PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-		if (pointerInfo != null) {
-			Point pm = pointerInfo.getLocation();
-			Point pc = c.getLocationOnScreen();
-			return new Point(pm.x - pc.x, pm.y - pc.y);
-		}
-		return new Point(-10000, -10000);
 	}
 	/**
 	 * Create a mouse movement event as if the mouse just

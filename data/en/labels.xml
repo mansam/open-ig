@@ -1715,7 +1715,7 @@
   <entry key='mission-3.escort_carrier.name'>Carrier</entry>
   <entry key='mission-3.reward'>One Shield v1.0 added to your inventory.</entry>
   <entry key='mission-4.pirate_battle'>Resolve the Pirate battle near Naxos</entry>
-  <entry key='mission-4.pirate_battle.desc'>Negotiate with them or just kill them, its your call.</entry>
+  <entry key='mission-4.pirate_battle.desc'>Negotiate with them or just kill them, it&#39;s your call.</entry>
   <entry key='mission-5.defend_thorin'>Defend the flagship Thorin</entry>
   <entry key='mission-5.defend_thorin.desc'>Join forces with Admiral Tullen. The flagship Thorin must survive.</entry>
   <entry key='mission-5.escort_thorin'>Escort the flagship Thorin</entry>
@@ -3073,10 +3073,10 @@
 	<entry key='planets.Exterior 17'>Exterior 17</entry>
 	<entry key='planets.Exterior 18'>Exterior 18</entry>
 	<entry key='planets.Exterior 19'>Exterior 19</entry>
-	<entry key='planets.Exterior 19'>Exterior 19</entry>
 	<entry key='planets.Exterior 20'>Exterior 20</entry>
 	<entry key='planets.Exterior 21'>Exterior 21</entry>
 	<entry key='planets.Exterior 22'>Exterior 22</entry>
+    <entry key='planets.Exterior 23'>Exterior 23</entry>
 	<entry key='planets.Garthog 1'>Garthog 1</entry>
 	<entry key='planets.Garthog 2'>Garthog 2</entry>
 	<entry key='planets.Garthog 3'>Garthog 3</entry>
@@ -3271,6 +3271,7 @@
 	<entry key='profiles.select_button'>Select / Create</entry>
 	<entry key='profiles.back_button'>Back</entry>
 	<entry key='profiles.existing_profiles'>Existing profiles:</entry>
+	<entry key='settings.auto_display_objectives'>Automatically display objective changes</entry>
 	<entry key='settings.continuous_money'>Continuous money/morale calculation</entry>
 	<entry key='info.planetlist_labs'>Lab info</entry>
 	<entry key='info.planetlist_problems'>Problems</entry>

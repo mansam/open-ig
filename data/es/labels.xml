@@ -731,10 +731,10 @@
   <entry key='planets.Exterior 17'>Exterior 17</entry>
   <entry key='planets.Exterior 18'>Exterior 18</entry>
   <entry key='planets.Exterior 19'>Exterior 19</entry>
-  <entry key='planets.Exterior 19'>Exterior 19</entry>
   <entry key='planets.Exterior 20'>Exterior 20</entry>
   <entry key='planets.Exterior 21'>Exterior 21</entry>
   <entry key='planets.Exterior 22'>Exterior 22</entry>
+  <entry key='planets.Exterior 23'>Exterior 23</entry>
   <entry key='planets.Magellan 10'>Magellan 10</entry>
   <entry key='planets.Magellan 11'>Magellan 11</entry>
   <entry key='multiplayer.settings.upnp_settings'>Settings...</entry>
@@ -1856,6 +1856,7 @@
   <entry key='settings.classic_controls'>Classic right mouse action controls</entry>
   <entry key='mission-6.handle_colonies.desc'>Try to build at least one Barracks.</entry>
   <entry key='chat.vo.5.n2.o'>Turn around! Your ship is infected.</entry>
+  <entry key='settings.auto_display_objectives'>Automatically display objective changes</entry>
   <entry key='settings.continuous_money'>Continuous money/morale calculation</entry>
   <entry key='achievement.death_star.desc'>You left your colony to be destroyed</entry>
   <entry key='achievement.embargo.desc'>You destroyed your first Trader ship</entry>
@@ -2207,7 +2208,7 @@
   <entry key='diplomacy.Morgath.ALLY.NO.57'>We will not sacrifice ourselves for your gain, human.</entry>
   <entry key='diplomacy.Dribs.DIPLOMATIC_RELATIONS.AGGRESSIVE.MAYBE.15'>Does the mountain accept the brotherhood of the hill?</entry>
   <entry key='mission-23.doctor.desc'>Go to the bar and speak with the Doctor about robots.</entry>
-  <entry key='mission-4.pirate_battle.desc'>Negotiate with them or just kill them, its your call.</entry>
+  <entry key='mission-4.pirate_battle.desc'>Negotiate with them or just kill them, it&#39;s your call.</entry>
   <entry key='message.cant_build_more'>You can&#39;t build more of this building on this planet.</entry>
   <entry key='diplomacy.Garthog.SURRENDER.NEUTRAL.71'>I would shoot myself before I became your slave, dog!</entry>
   <entry key='skirmish.objectives.conquest.desc'>Conquer or destroy all planets of the enemy factions.</entry>

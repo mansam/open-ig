@@ -25,7 +25,7 @@ public class Walks {
 	/** The map of ships to be walked. */
 	public final Map<String, WalkShip> ships = new HashMap<>();
 	/**
-	 * Load the shipwalk.xml from the resoure locator.
+	 * Load the shipwalk.xml from the resource locator.
 	 * @param rl the resource locator
 	 * @param data the path to the resource
 	 */
@@ -56,6 +56,9 @@ public class Walks {
 						wt.media = transition.get("media", null);
 						wt.label = transition.get("label");
 						wt.to = transition.get("to");
+						if (transition.has("cursor")) {
+							wt.cursor = Cursors.valueOf(transition.get("cursor"));
+						}
 						String area = transition.get("area");
 						List<Integer> xs = new ArrayList<>();
 						List<Integer> ys = new ArrayList<>();

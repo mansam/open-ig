@@ -506,7 +506,7 @@ public class Planet implements Named, Owned, HasInventory, HasPosition {
 		return result;
 	}
 	/**
-	 * Returns the invetory count of the given technology.
+	 * Returns the inventory count of the given technology.
 	 * @param rt the research technology.
 	 * @return the count
 	 */
@@ -815,7 +815,7 @@ public class Planet implements Named, Owned, HasInventory, HasPosition {
 		InventoryItem.removeExcessTanks(inventory, owner, ps.vehicleCount, ps.vehicleMax);
 	}
 	/**
-	 * Refills the equimpent of the space stations around the planet.
+	 * Refills the equipment of the space stations around the planet.
 	 */
 	public void refillEquipment() {
 		if (owner == world.player && world.env.config().reequipBombs) {
@@ -934,7 +934,7 @@ public class Planet implements Named, Owned, HasInventory, HasPosition {
 	/**
 	 * Colonize the planet by the given owner.
 	 * @param owner the new owner
-	 * @return true if colonization successfull
+	 * @return true if colonization successful
 	 */
 	public boolean colonize(Player owner) {
 		if (this.owner != null) {
@@ -1054,7 +1054,7 @@ public class Planet implements Named, Owned, HasInventory, HasPosition {
 	 * Compute how many of the supplied items can be added without violating the limit constraints. 
 	 * @param rt the item type
 	 * @param owner the owner
-	 * @return the currently alloved
+	 * @return the currently allowed
 	 */
 	public int getAddLimit(ResearchType rt, Player owner) {
 		PlanetStatistics fs = getStatistics();
@@ -1563,13 +1563,13 @@ public class Planet implements Named, Owned, HasInventory, HasPosition {
 		}
 		result.nativeWorkerDemand += Math.abs(b.getWorkers()) * health;		
 	}
-	/** @returns the current morale. */
+	/** @return the current morale. */
 	public double morale() {
 	    return morale;
 	}
 	/**
 	 * Sets a new morale.
-	 * @param newMorale
+	 * @param newMorale the new morale
 	 */
 	public void morale(double newMorale) {
 	    if (!isFinite(newMorale)) {
@@ -1578,13 +1578,13 @@ public class Planet implements Named, Owned, HasInventory, HasPosition {
 	        morale = Math.max(0d, Math.min(100, newMorale));
 	    }
 	}
-    /** @returns the last morale. */
+    /** @return the last morale. */
     public double lastMorale() {
         return lastMorale;
     }
     /**
      * Sets a new morale.
-     * @param newMorale the new last morale
+     * @param newLastMorale the new last morale
      */
     public void lastMorale(double newLastMorale) {
         if (!isFinite(newLastMorale)) {
